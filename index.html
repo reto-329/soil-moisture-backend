@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Soil Sensor Data</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+    }
+    .data-container {
+      margin-bottom: 20px;
+    }
+    .data-label {
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <h1>Soil Sensor Data</h1>
+  <div class="data-container">
+    <span class="data-label">Temperature:</span>
+    <span id="temperature">--</span> °C
+  </div>
+  <div class="data-container">
+    <span class="data-label">Moisture:</span>
+    <span id="moisture">--</span> %
+  </div>
+  <div class="data-container">
+    <span class="data-label">pH:</span>
+    <span id="ph">--</span>
+  </div>
+
+  <script>
+    // Connect to the WebSocket server
+    const ws = new WebSocket('ws://172.20.10.8:8080');
+
+    ws.onopen = () => {
+      console.log('Connected to WebSocket server');
+    };
+
+    ws.onmessage = (event) => {
+      const data = JSON.parse(event.data);
+      console.log('Received:', data);
+
+      // Update the frontend with the new data
+      document.getElementById('temperature').textContent = data.temperature;
+      document.getElementById('moisture').textContent = data.moisture;
+      document.getElementById('ph').textContent = data.ph;
+    };
+
+    ws.onerror = (error) => {
+      console.error('WebSocket error:', error);
+    };
+
+    ws.onclose = () => {
+      console.log('Disconnected from WebSocket server');
+    };
+  </script>
+</body>
+</html>
