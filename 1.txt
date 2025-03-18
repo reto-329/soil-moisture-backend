@@ -1,0 +1,114 @@
+#include <WiFi.h>
+#include <WebSocketsClient.h>
+#include <LiquidCrystal_I2C.h>
+
+// Wi-Fi credentials
+const char* ssid = "Reto😎";
+const char* password = "12345678990";
+
+// WebSocket server details
+const char* websocket_server = "172.20.10.8"; // Replace with your server's IP address
+const int websocket_port = 8080; // Port for WSS
+const char* websocket_path = "/"; // WebSocket path
+
+// Initialize LCD
+LiquidCrystal_I2C lcd(0x27, 16, 2);
+
+// Initialize WebSocket client
+WebSocketsClient webSocket;
+
+void setup() {
+    // Initialize Serial Monitor
+    Serial.begin(115200);
+
+    // Initialize LCD
+    lcd.init();
+    lcd.backlight();
+    lcd.setCursor(0, 0);
+    lcd.print("WebSocket Status:");
+
+    // Connect to Wi-Fi
+    WiFi.begin(ssid, password);
+    while (WiFi.status() != WL_CONNECTED) {
+        delay(1000);
+        Serial.println("Connecting to WiFi...");
+    }
+    Serial.println("Connected to WiFi");
+
+    // Connect to WebSocket server
+    webSocket.beginSSL(websocket_server, websocket_port, websocket_path);
+    webSocket.onEvent(webSocketEvent);
+}
+
+void loop() {
+    webSocket.loop();  // Handle WebSocket events
+}
+
+void webSocketEvent(WStype_t type, uint8_t* payload, size_t length) {
+    switch (type) {
+        case WStype_DISCONNECTED:
+            Serial.println("WebSocket disconnected");
+            lcd.setCursor(0, 1);
+            lcd.print("Disconnected    "); // Clear the line
+            break;
+        case WStype_CONNECTED:
+            Serial.println("WebSocket connected");
+            lcd.setCursor(0, 1);
+            lcd.print("Connected       "); // Clear the line
+            break;
+        case WStype_TEXT:
+            Serial.printf("Received: %s\n", payload);
+            break;
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+const fs = require('fs');
+const https = require('https');
+const WebSocket = require('ws');
+
+// Load SSL certificates
+const server = https.createServer({
+    cert: fs.readFileSync('cert.pem'),
+    key: fs.readFileSync('key.pem')
+});
+
+const wss = new WebSocket.Server({ server });
+
+wss.on('connection', (ws) => {
+    console.log('Client connected');
+
+    ws.on('message', (message) => {
+        console.log(`Received: ${message}`);
+        // Process the data (e.g., save to database)
+    });
+
+    ws.on('close', () => {
+        console.log('Client disconnected');
+    });
+
+    ws.on('error', (error) => {
+        console.error('WebSocket error:', error);
+    });
+});
+
+server.listen(8080, '172.20.10.8', () => {
+    console.log('WebSocket server is running on wss://172.20.10.8:8080');
+});
+
+server.on('error', (error) => {
+    console.error('Server error:', error);
+});
