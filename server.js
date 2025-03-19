@@ -4,8 +4,8 @@ const WebSocket = require('ws');
 
 // Load SSL certificate and key
 const server = https.createServer({
-  cert: fs.readFileSync('server.crt'), // Path to your SSL certificate
-  key: fs.readFileSync('server.key')   // Path to your SSL private key
+  cert: fs.readFileSync('cert.pem'), // Path to your SSL certificate
+  key: fs.readFileSync('key.pem')   // Path to your SSL private key
 });
 
 // Create a WebSocket server
